@@ -10,8 +10,7 @@ exports.create = (req, res) => {
 
     const user = new User({
         email: req.body.email,
-        hash: req.body.hash,
-        salt: req.body.salt
+        password: req.body.password,
     })
 
     User.create(user, (err, data) => {
@@ -38,19 +37,36 @@ exports.findAll = (req, res) => {
 
 // Find a single user with a userId
 exports.findOne = (req, res) => {
-    User.findById(req.params.userId, (err, data) => {
-        if (err) {
-            if (err.kind === "not_found") {
-                res.status(404).send({
-                    message: `Not found Customer with id ${req.params.customerId}.`
-                });
-            } else {
-                res.status(500).send({
-                    message: "Error retrieving Customer with id " + req.params.customerId
-                });
-            }
-        } else { res.send(data) }
-    })
+    if (req.params.userId) {
+        User.findById(req.params.userId, (err, data) => {
+            if (err) {
+                if (err.kind === "not_found") {
+                    res.status(404).send({
+                        message: `Not found user with id ${req.params.userId}.`
+                    });
+                } else {
+                    res.status(500).send({
+                        message: "Error retrieving user with id " + req.params.userId
+                    });
+                }
+            } else { res.send(data) }
+        })
+    } else if (req.params.email) {
+        User.findByEmail(req.params.email, (err, data) => {
+            if (err) {
+                if (err.kind === "not_found") {
+                    res.status(404).send({
+                        message: `Not found user with email ${req.params.email}.`
+                    });
+                } else {
+                    res.status(500).send({
+                        message: "Error retrieving user with email " + req.params.email
+                    });
+                }
+            } else { res.send(data) }
+        })
+    }
+
 };
 
 // Update a user identified by the userId in the request

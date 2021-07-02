@@ -2,25 +2,24 @@ const sql = require('./db.js');
 
 const User = function (user) {
     this.email = user.email;
-    this.hash = user.hash;
-    this.salt = user.salt;
+    this.password = user.password;
 }
 
 User.create = (newUser, result) => {
-    sql.query("INSERT INTO users SET ?", newUser, (err, res) => {
+    sql.query(`INSERT INTO users(email, password) VALUES ('${newUser.email}', '${newUser.password}')`, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
             return;
         }
 
-        console.log("created user: ", { id: res.insertId, ...newUser });
-        result(null, { id: res.insertId, ...newUser });
+        console.log("created user: ", { "user_id": res.insertId, ...newUser });
+        result(null, { "user_id": res.insertId, ...newUser });
     })
 }
 
 User.findById = (userId, result) => {
-    sql.query(`SELECT * FROM users WHERE id = ${userId}`, (err, res) => {
+    sql.query(`SELECT * FROM users WHERE user_id = ${userId}`, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
@@ -31,6 +30,29 @@ User.findById = (userId, result) => {
             console.log(`found user: ${res[0]}`);
             result(null, res[0]);
             return;
+        }
+
+        result({ kind: "not_found" }, null)
+    })
+}
+
+User.findByEmail = (userCreds, result) => {
+    sql.query(`SELECT * FROM users WHERE email = ${userCreds.email}`, (err, res) => {
+        if (err) {
+            console.error(err);
+            result(err, null);
+            return;
+        }
+
+        if (res.length) {
+            console.log(`found user: ${res[0]}`);
+            if (res[0].password === userCreds.password) {
+                result(null, res[0]);
+                return
+            } else {
+                result('WRONG!', null)
+                return;
+            }
         }
 
         result({ kind: "not_found" }, null)
