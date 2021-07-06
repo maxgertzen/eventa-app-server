@@ -19,7 +19,7 @@ exports.create = (req, res) => {
                 message:
                     err.message || "Some error occurred while creating the User."
             });
-        } else { res.send(data) }
+        } else { res.status(200).send(data) }
     })
 };
 
@@ -51,16 +51,16 @@ exports.findOne = (req, res) => {
                 }
             } else { res.send(data) }
         })
-    } else if (req.params.email) {
-        User.findByEmail(req.params.email, (err, data) => {
+    } else if (req.body.email) {
+        User.findByEmail(req.body, (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found user with email ${req.params.email}.`
+                        message: `Not found user with email ${req.body.email}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error retrieving user with email " + req.params.email
+                        message: "Error retrieving user with email " + req.body.email
                     });
                 }
             } else { res.send(data) }
@@ -79,7 +79,7 @@ exports.update = (req, res) => {
 
     User.updateById(
         req.params.userId,
-        new Customer(req.body),
+        new User(req.body),
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
@@ -98,11 +98,6 @@ exports.update = (req, res) => {
 
 // Delete a user with the specified userId in the request
 exports.delete = (req, res) => {
-
-};
-
-// Delete all users from the database.
-exports.deleteAll = (req, res) => {
     User.remove(req.params.userId, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
@@ -111,7 +106,7 @@ exports.deleteAll = (req, res) => {
                 })
             } else {
                 res.status(500).send({
-                    message: "Could not delete User with id " + req.params.customerId
+                    message: "Could not delete User with id " + req.params.userId
                 });
             }
         } else {
