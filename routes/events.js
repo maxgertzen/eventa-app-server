@@ -1,11 +1,18 @@
 var express = require('express');
 var router = express.Router();
 const event = require('../controllers/event.controller');
-
+const validateCookie = require('../middlewares/validateCookieMiddleware');
 
 router.route('/')
     .get(event.findAll)
     .post(event.create)
+
+
+router.route('/protected')
+    .all(validateCookie)
+    .get((req, res) => {
+        res.status(200).json({ msg: 'You are authorized' })
+    })
 
 router.route('/:eventId')
     .get(event.findOne)
