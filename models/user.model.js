@@ -48,7 +48,7 @@ User.findByEmail = (userCreds, result) => {
             console.log(`found user: ${res[0]}`);
             if (res[0].password === userCreds.password) {
                 console.log(res)
-                result(null, res[0]);
+                result(null, res[0].firstName);
                 return
             } else {
                 result('WRONG!', null)

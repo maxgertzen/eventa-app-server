@@ -24,29 +24,21 @@ exports.register = (req, res) => {
 };
 
 exports.login = (req, res) => {
-    console.log('GETS HERE')
-    if (req.session.authenticated) return res.json(req.session)
-    else {
-        User.findByEmail(req.body, (err, data) => {
-            if (err) {
-                if (err.kind === "not_found") {
-                    res.status(404).send({
-                        message: `Not found user with email ${req.body.email}.`
-                    });
-                } else {
-                    res.status(500).send({
-                        message: "Error retrieving user with email " + req.body.email
-                    });
-                }
+    User.findByEmail(req.body, (err, data) => {
+        if (err) {
+            if (err.kind === "not_found") {
+                res.status(404).send({
+                    message: `Not found user with email ${req.body.email}.`
+                });
             } else {
-                req.session.authenticated = true;
-                req.session.user = {
-                    email: data.email,
-                    name: data.firstName
-                }
-                res.status(200).json(req.session)
+                res.status(500).send({
+                    message: "Error retrieving user with email " + req.body.email
+                });
             }
-        })
-    }
+        } else {
+            res.cookie('user', data, { maxAge: 60000 });
+            res.status(200).send({ msg: 'Logged In.' })
+        }
+    })
 };
 

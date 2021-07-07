@@ -2,15 +2,12 @@ var express = require('express');
 var router = express.Router();
 const auth = require('../controllers/auth.controller');
 const validation = require('../middlewares/validationMiddleware');
-
-router.route('/login')
-    .all(validation)
-    .post(auth.login)
+const userAuthSchema = require('../validations/userValidation');
 
 
+router.post('/login', validation(userAuthSchema), auth.login)
 
-router.route('/register')
-    .all(validation)
-    .post(auth.register)
+router.post('/register', validation(userAuthSchema), auth.register)
+
 
 module.exports = router;
