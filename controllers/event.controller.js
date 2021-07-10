@@ -15,7 +15,7 @@ exports.create = (req, res) => {
         dateEnd: req.body.dateEnd,
         timeStart: req.body.timeStart,
         timeEnd: req.body.timeEnd,
-        image: req.body.image,
+        image: req.body.image || '',
         isPublic: req.body.isPublic
     })
 

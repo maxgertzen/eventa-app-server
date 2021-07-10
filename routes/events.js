@@ -5,8 +5,8 @@ const validateCookie = require('../middlewares/validateCookieMiddleware');
 
 router.route('/')
     .get(event.findAll)
-    .post(event.create)
 
+route.post('/', validateCookie, event.create)
 
 router.route('/protected')
     .all(validateCookie)

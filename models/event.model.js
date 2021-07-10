@@ -44,7 +44,7 @@ Event.findById = (eventId, result) => {
 
 
 Event.getAll = result => {
-    sql.query('SELECT * FROM events', (err, res) => {
+    sql.query('SELECT * FROM events WHERE isPublic = 1', (err, res) => {
         if (err) {
             console.log('error: ', err);
             result(null, err);
