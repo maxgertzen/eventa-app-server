@@ -41,22 +41,20 @@ exports.findAll = (req, res) => {
 };
 
 
-exports.findOne = (req, res) => {
-    if (req.params.eventId) {
-        Event.findById(req.params.eventId, (err, data) => {
-            if (err) {
-                if (err.kind === "not_found") {
-                    res.status(404).send({
-                        message: `Not found event with id ${req.params.eventId}.`
-                    });
-                } else {
-                    res.status(500).send({
-                        message: "Error retrieving event with id " + req.params.eventId
-                    });
-                }
-            } else { res.send(data) }
-        })
-    }
+exports.findOne = async (req, res) => {
+    Event.findById(req.params.eventId, (err, data) => {
+        if (err) {
+            if (err.kind === "not_found") {
+                res.status(404).send({
+                    message: `Not found event with id ${req.params.eventId}.`
+                });
+            } else {
+                res.status(500).send({
+                    message: "Error retrieving event with id " + req.params.eventId
+                });
+            }
+        } else { res.status(200).send(data) }
+    })
 };
 
 exports.update = (req, res) => {
