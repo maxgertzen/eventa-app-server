@@ -13,8 +13,6 @@ exports.create = (req, res) => {
         price$: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
-        timeStart: req.body.timeStart,
-        timeEnd: req.body.timeEnd,
         image: req.body.image || '',
         isPublic: req.body.isPublic
     })
@@ -30,6 +28,16 @@ exports.create = (req, res) => {
 };
 
 exports.findAll = (req, res) => {
+    Event.getAll((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving users."
+            })
+        } else { res.send(data) }
+    })
+};
+exports.findSome = (req, res) => {
     Event.getAll((err, data) => {
         if (err) {
             res.status(500).send({
@@ -56,6 +64,8 @@ exports.findOne = async (req, res) => {
         } else { res.status(200).send(data) }
     })
 };
+
+
 
 exports.update = (req, res) => {
     if (!req.body) {

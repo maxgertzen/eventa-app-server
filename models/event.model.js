@@ -26,7 +26,8 @@ Event.create = (newEvent, result) => {
 }
 
 Event.findById = (eventId, result) => {
-    sql.query('SELECT * FROM events WHERE ? ', eventId, (err, res) => {
+    let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc' FROM events e join venues v on e.venue_id = v.venue_id WHERE event_id = ?"
+    sql.query(queryString, eventId, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
@@ -54,6 +55,25 @@ Event.getAll = result => {
         console.table('events: ', res);
         result(null, res);
     });
+}
+
+Event.search = (searchTerm, result) => {
+    let complex = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', c.name 'Category' FROM events e join venues v on e.venue_id = v.venue_id join eventcategory ec on e.event_id = ec.event_id join category c on c.category_id = ec.category_id join eventtags et on et.event_id = e.event_id join tags t on t.tag_id = et.tag_id WHERE concat(e.name, t.name, c.name, v.name) LIKE '%?%'";
+    sql.query(complex, [searchTerm],
+        (err, res) => {
+            if (err) {
+                console.error(err);
+                result(null, err);
+                return;
+            }
+
+            if (res.affectedRows == 0) {
+                result({ kind: 'not_found' }, null);
+                return;
+            }
+
+            result(null, res[0])
+        })
 }
 
 Event.updateById = (eventId, event, result) => {
