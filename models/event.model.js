@@ -3,8 +3,8 @@ const sql = require('./db.js');
 const Event = function (event) {
     this.name = event.name;
     this.description = event.description;
-    this.dateStart = event.dateStart;
-    this.dateEnd = event.dateEnd;
+    this.dateStart = event.dateStart.toISOString().slice(0, 19).replace('T', ' ');
+    this.dateEnd = event.dateEnd.toISOString().slice(0, 19).replace('T', ' ');
     this.image = event.image || '';
     this.isPublic = event.isPublic
 }
