@@ -9,6 +9,10 @@ router.route('/')
 router.route('/s')
     .get(event.findSome)
 
+
+router.route('/categories')
+    .get(event.categories)
+
 // route.post('/', validateCookie, event.create)
 
 // router.route('/protected')

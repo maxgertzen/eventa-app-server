@@ -112,4 +112,16 @@ Event.remove = (eventId, result) => {
     });
 }
 
+Event.getCategories = result => {
+    sql.query('SELECT name, category_id FROM categories', (err, res) => {
+        if (err) {
+            console.log('error: ', err);
+            result(null, err);
+            return;
+        }
+
+        result(null, res);
+    });
+}
+
 module.exports = Event

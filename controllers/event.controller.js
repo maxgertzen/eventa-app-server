@@ -110,3 +110,14 @@ exports.delete = (req, res) => {
         }
     })
 };
+
+exports.categories = (req, res) => {
+    Event.getCategories((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving categories."
+            })
+        } else { res.send(data) }
+    })
+}
