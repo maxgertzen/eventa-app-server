@@ -18,6 +18,7 @@ exports.create = (req, res) => {
     })
 
     let userId = req.cookies.user.split('?')[0];
+
     event.user_id = userId
 
     Event.create(event, (err, data) => {
@@ -27,7 +28,9 @@ exports.create = (req, res) => {
                     err.message || "Some error occurred while creating the User."
             });
         } else {
-            res.status(200).send(data)
+            res.status(200).send({
+                message: `${data.name} is added successfully!`
+            })
         }
     })
 };

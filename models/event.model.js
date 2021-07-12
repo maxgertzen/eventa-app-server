@@ -3,8 +3,8 @@ const sql = require('./db.js');
 const Event = function (event) {
     this.name = event.name;
     this.description = event.description;
-    this.dateStart = event.dateStart.toISOString().slice(0, 19).replace('T', ' ');
-    this.dateEnd = event.dateEnd.toISOString().slice(0, 19).replace('T', ' ');
+    this.dateStart = new Date(event.dateStart).toISOString().slice(0, 19).replace('T', ' ');
+    this.dateEnd = new Date(event.dateEnd).toISOString().slice(0, 19).replace('T', ' ');
     this.image = event.image || '';
     this.isPublic = event.isPublic
 }
@@ -17,12 +17,13 @@ Event.create = (newEvent, result) => {
             return;
         }
 
-        console.log('created event: ', { 'event': res.insertId, ...newEvent });
+        console.log('created event: ', { 'event_id': res.insertId, ...newEvent });
         result(null, { 'event_id': res.insertId, ...newEvent });
     })
 }
 
 Event.findById = (eventId, result) => {
+    console.log('got to model')
     let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc' FROM events e join venues v on e.venue_id = v.venue_id WHERE event_id = ?"
     sql.query(queryString, eventId, (err, res) => {
         if (err) {
@@ -32,6 +33,8 @@ Event.findById = (eventId, result) => {
         }
 
         if (res.length) {
+            console.log(res)
+            console.log(res[0])
             result(null, res[0]);
             return;
         }
