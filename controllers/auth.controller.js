@@ -37,7 +37,7 @@ exports.login = (req, res) => {
             }
         } else {
             let userString = data.user_id + '?' + data.firstName;
-            res.cookie('user', userString, { maxAge: 60000 });
+            res.cookie('user', userString);
             res.status(200).send({ msg: 'Logged In.' })
         }
     })
