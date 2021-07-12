@@ -10,20 +10,25 @@ exports.create = (req, res) => {
     const event = new Event({
         name: req.body.name,
         description: req.body.description,
-        price$: req.body.price,
+        price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
         image: req.body.image || '',
         isPublic: req.body.isPublic
     })
 
-    Event.create(user, (err, data) => {
+    let userId = req.cookies.user.split('?')[0];
+    event.user_id = userId
+
+    Event.create(event, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while creating the User."
             });
-        } else { res.status(200).send(data) }
+        } else {
+            res.status(200).send(data)
+        }
     })
 };
 

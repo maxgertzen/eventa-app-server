@@ -3,11 +3,8 @@ const sql = require('./db.js');
 const Event = function (event) {
     this.name = event.name;
     this.description = event.description;
-    this.price$ = event.price$ || 0;
     this.dateStart = event.dateStart;
     this.dateEnd = event.dateEnd;
-    this.timeStart = event.timeStart;
-    this.timeEnd = event.timeEnd || '';
     this.image = event.image || '';
     this.isPublic = event.isPublic
 }
