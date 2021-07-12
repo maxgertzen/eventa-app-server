@@ -37,8 +37,8 @@ exports.findAll = (req, res) => {
         } else { res.send(data) }
     })
 };
-exports.findSome = (req, res) => {
-    Event.getAll((err, data) => {
+exports.findSome = async (req, res) => {
+    Event.search(req.query.search, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
