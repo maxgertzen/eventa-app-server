@@ -19,6 +19,10 @@ router.route('/categories')
 router.route('/:eventId')
     .get(event.findOne)
 
+
+router.route('/dashboard')
+    .get(validateCookie, event.getUserEvents)
+
 router.route('/create')
     .post(validateCookie, uploadImage, event.create)
     .put(validateCookie, event.update)

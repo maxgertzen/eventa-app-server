@@ -73,7 +73,25 @@ exports.findOne = async (req, res) => {
     })
 };
 
+exports.getUserEvents = (req, res) => {
+    let { cookies } = req;
 
+    Event.findByUserId(cookies.user.split('?')[0], (err, data) => {
+        if (err) {
+            if (err.kind === 'not_found') {
+                res.status(202).send({
+                    message: 'No events for current user'
+                })
+            } else {
+                res.status(500).send({
+                    message: 'Error retrieving user events'
+                })
+            }
+        } else {
+            res.status(200).send(data)
+        }
+    })
+}
 
 exports.update = (req, res) => {
     if (!req.body) {

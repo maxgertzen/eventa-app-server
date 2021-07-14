@@ -23,7 +23,6 @@ Event.create = (newEvent, result) => {
 }
 
 Event.findById = (eventId, result) => {
-    console.log('got to model')
     let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc' FROM events e join venues v on e.venue_id = v.venue_id WHERE event_id = ?"
     sql.query(queryString, eventId, (err, res) => {
         if (err) {
@@ -36,6 +35,23 @@ Event.findById = (eventId, result) => {
             console.log(res)
             console.log(res[0])
             result(null, res[0]);
+            return;
+        }
+
+        result({ kind: 'not_found' }, null)
+    })
+}
+Event.findByUserId = (userId, result) => {
+    let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ?"
+    sql.query(queryString, userId, (err, res) => {
+        if (err) {
+            console.error(err);
+            result(err, null);
+            return;
+        }
+
+        if (res.length) {
+            result(null, res);
             return;
         }
 
