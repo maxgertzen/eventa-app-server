@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TINYINT,
       defaultValue: 0
     },
-    image: DataTypes.BLOB
+    image: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Events',
