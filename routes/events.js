@@ -6,17 +6,21 @@ const validateCookie = require('../middlewares/validateCookieMiddleware');
 router.route('/')
     .get(event.findAll)
 
-route.post('/', validateCookie, event.create)
 
-router.route('/protected')
-    .all(validateCookie)
-    .get((req, res) => {
-        res.status(200).json({ msg: 'You are authorized' })
-    })
+router.route('/s')
+    .get(event.findSome)
+
+
+router.route('/categories')
+    .get(event.categories)
 
 router.route('/:eventId')
     .get(event.findOne)
-    .put(event.update)
-    .delete(event.delete)
+
+router.route('/create')
+    .post(validateCookie, event.create)
+    .put(validateCookie, event.update)
+    .delete(validateCookie, event.delete)
+
 
 module.exports = router

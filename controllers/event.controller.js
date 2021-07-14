@@ -10,22 +10,28 @@ exports.create = (req, res) => {
     const event = new Event({
         name: req.body.name,
         description: req.body.description,
-        price$: req.body.price,
+        price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
-        timeStart: req.body.timeStart,
-        timeEnd: req.body.timeEnd,
         image: req.body.image || '',
         isPublic: req.body.isPublic
     })
 
-    Event.create(user, (err, data) => {
+    let userId = req.cookies.user.split('?')[0];
+
+    event.user_id = userId
+
+    Event.create(event, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while creating the User."
             });
-        } else { res.status(200).send(data) }
+        } else {
+            res.status(200).send({
+                message: `${data.name} is added successfully!`
+            })
+        }
     })
 };
 
@@ -39,25 +45,35 @@ exports.findAll = (req, res) => {
         } else { res.send(data) }
     })
 };
-
-
-exports.findOne = (req, res) => {
-    if (req.params.eventId) {
-        Event.findById(req.params.eventId, (err, data) => {
-            if (err) {
-                if (err.kind === "not_found") {
-                    res.status(404).send({
-                        message: `Not found event with id ${req.params.eventId}.`
-                    });
-                } else {
-                    res.status(500).send({
-                        message: "Error retrieving event with id " + req.params.eventId
-                    });
-                }
-            } else { res.send(data) }
-        })
-    }
+exports.findSome = async (req, res) => {
+    Event.search(req.query.search, (err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving users."
+            })
+        } else { res.send(data) }
+    })
 };
+
+
+exports.findOne = async (req, res) => {
+    Event.findById(req.params.eventId, (err, data) => {
+        if (err) {
+            if (err.kind === "not_found") {
+                res.status(404).send({
+                    message: `Not found event with id ${req.params.eventId}.`
+                });
+            } else {
+                res.status(500).send({
+                    message: "Error retrieving event with id " + req.params.eventId
+                });
+            }
+        } else { res.status(200).send(data) }
+    })
+};
+
+
 
 exports.update = (req, res) => {
     if (!req.body) {
@@ -102,3 +118,14 @@ exports.delete = (req, res) => {
         }
     })
 };
+
+exports.categories = (req, res) => {
+    Event.getCategories((err, data) => {
+        if (err) {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving categories."
+            })
+        } else { res.send(data) }
+    })
+}

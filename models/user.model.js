@@ -37,7 +37,7 @@ User.findById = (userId, result) => {
 }
 
 User.findByEmail = (userCreds, result) => {
-    sql.query('SELECT * FROM users WHERE email = ?', userCreds.email, (err, res) => {
+    sql.query('SELECT firstName, user_id, password FROM users WHERE email = ?', userCreds.email, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
@@ -48,7 +48,7 @@ User.findByEmail = (userCreds, result) => {
             console.log(`found user: ${res[0]}`);
             if (res[0].password === userCreds.password) {
                 console.log(res)
-                result(null, res[0].firstName);
+                result(null, res[0]);
                 return
             } else {
                 result('WRONG!', null)
