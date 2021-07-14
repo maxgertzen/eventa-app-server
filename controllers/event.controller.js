@@ -13,7 +13,7 @@ exports.create = (req, res) => {
         price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
-        image: req.body.image || '',
+        imageupload: req.file.filename || '',
         isPublic: req.body.isPublic
     })
 

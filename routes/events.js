@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const event = require('../controllers/event.controller');
+// const uploadImage = require('../middlewares/uploadImageMiddleware');
+const uploadImage = require('../middlewares/multerConfig');
 const validateCookie = require('../middlewares/validateCookieMiddleware');
 
 router.route('/')
@@ -18,7 +20,7 @@ router.route('/:eventId')
     .get(event.findOne)
 
 router.route('/create')
-    .post(validateCookie, event.create)
+    .post(validateCookie, uploadImage, event.create)
     .put(validateCookie, event.update)
     .delete(validateCookie, event.delete)
 
