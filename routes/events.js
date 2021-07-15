@@ -8,6 +8,8 @@ const validateCookie = require('../middlewares/validateCookieMiddleware');
 router.route('/')
     .get(event.findAll)
 
+router.route('/dashboard')
+    .get(event.getUserEvents)
 
 router.route('/s')
     .get(event.findSome)
@@ -20,8 +22,6 @@ router.route('/:eventId')
     .get(event.findOne)
 
 
-router.route('/dashboard')
-    .get(validateCookie, event.getUserEvents)
 
 router.route('/create')
     .post(validateCookie, uploadImage, event.create)

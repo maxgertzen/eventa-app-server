@@ -75,8 +75,8 @@ exports.findOne = async (req, res) => {
 
 exports.getUserEvents = (req, res) => {
     let { cookies } = req;
-
-    Event.findByUserId(cookies.user.split('?')[0], (err, data) => {
+    let uid = cookies.user.split('?')[0];
+    Event.findByUserId(uid, (err, data) => {
         if (err) {
             if (err.kind === 'not_found') {
                 res.status(202).send({

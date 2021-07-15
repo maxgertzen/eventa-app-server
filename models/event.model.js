@@ -32,8 +32,6 @@ Event.findById = (eventId, result) => {
         }
 
         if (res.length) {
-            console.log(res)
-            console.log(res[0])
             result(null, res[0]);
             return;
         }
@@ -42,7 +40,7 @@ Event.findById = (eventId, result) => {
     })
 }
 Event.findByUserId = (userId, result) => {
-    let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ?"
+    let queryString = "SELECT e.event_id, e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ?"
     sql.query(queryString, userId, (err, res) => {
         if (err) {
             console.error(err);
