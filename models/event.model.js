@@ -40,7 +40,7 @@ Event.findById = (eventId, result) => {
     })
 }
 Event.findByUserId = (userId, result) => {
-    let queryString = "SELECT e.event_id, e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ?"
+    let queryString = "SELECT e.event_id, e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ? ORDER BY e.dateStart ASC"
     sql.query(queryString, userId, (err, res) => {
         if (err) {
             console.error(err);
@@ -109,7 +109,7 @@ Event.updateById = (eventId, event, result) => {
 }
 
 Event.remove = (eventId, result) => {
-    sql.query('DELETE FROM events WHERE id = ?', eventId, (err, res) => {
+    sql.query('DELETE FROM events WHERE event_id = ?', eventId, (err, res) => {
         if (err) {
             console.log('error: ', err);
             result(null, err);

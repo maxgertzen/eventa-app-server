@@ -14,19 +14,16 @@ router.route('/dashboard')
 router.route('/s')
     .get(event.findSome)
 
+router.route('/:eventId')
+    .get(event.findOne)
+    .put(validateCookie, event.update)
+    .delete(validateCookie, event.delete)
 
 router.route('/categories')
     .get(event.categories)
 
-router.route('/:eventId')
-    .get(event.findOne)
-
-
-
 router.route('/create')
     .post(validateCookie, uploadImage, event.create)
-    .put(validateCookie, event.update)
-    .delete(validateCookie, event.delete)
 
 
 module.exports = router

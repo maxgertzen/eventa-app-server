@@ -13,7 +13,7 @@ exports.create = (req, res) => {
         price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
-        imageupload: req.file.filename || '',
+        imageupload: req.file.filename || '', // add local host to name
         isPublic: req.body.isPublic
     })
 
