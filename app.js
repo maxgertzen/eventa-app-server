@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/auth');
 var eventsRouter = require('./routes/events');
+var venuesRouter = require('./routes/venues');
 
 var app = express();
 app.use(cors({
@@ -26,5 +27,6 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
 app.use('/events', eventsRouter);
+app.use('/venues', venuesRouter);
 
 module.exports = app;
