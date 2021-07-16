@@ -134,16 +134,17 @@ Event.remove = (eventId, result) => {
                     })
                 }
 
-                if (res.affectedRows == 0) {
-                    result({ kind: 'not_found' }, null);
-                    return;
-                }
 
                 sql.commit(function (err) {
                     if (err) {
                         return sql.rollback(function () {
                             throw err;
                         });
+                    }
+
+                    if (res.affectedRows == 0) {
+                        result({ kind: 'not_found' }, null);
+                        return;
                     }
                     console.log('deleted customer with id: ', eventId);
                     result(null, res);
