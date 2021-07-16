@@ -5,7 +5,7 @@ const Event = function (event) {
     this.description = event.description;
     this.dateStart = new Date(event.dateStart).toISOString().slice(0, 19).replace('T', ' ');
     this.dateEnd = new Date(event.dateEnd).toISOString().slice(0, 19).replace('T', ' ');
-    this.image = event.imageupload || '';
+    this.image = event.imageupload;
     this.isPublic = event.isPublic
 }
 

@@ -7,13 +7,15 @@ exports.create = (req, res) => {
         })
     };
 
+    let imageString = req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : '/image-placeholder.png';
+
     const event = new Event({
         name: req.body.name,
         description: req.body.description,
         price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
-        imageupload: req.file.filename || '', // add local host to name
+        imageupload: imageString || '',
         isPublic: req.body.isPublic
     })
 
