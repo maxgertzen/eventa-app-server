@@ -1,4 +1,5 @@
 const sql = require('./db.js');
+const fs = require('fs');
 
 const Event = function (event) {
     this.name = event.name;
@@ -110,20 +111,45 @@ Event.updateById = (eventId, event, result) => {
 }
 
 Event.remove = (eventId, result) => {
-    sql.query('DELETE FROM events WHERE event_id = ?', eventId, (err, res) => {
-        if (err) {
-            console.log('error: ', err);
-            result(null, err);
-            return;
-        }
+    sql.beginTransaction(function (err) {
+        if (err) { throw err; }
+        sql.query('SELECT image FROM events WHERE event_id = ?', eventId, (err, res) => {
+            if (err) {
+                return sql.rollback(function () {
+                    result(null, err);
+                });
+            };
+            if (res[0].image.startsWith('http')) {
+                let filePath = res[0].image.replace('http://localhost:3100', './public');
+                fs.unlink(filePath, function (err) {
+                    if (err) console.log('failed to delete image')
+                    else console.log('deleted image succesfully')
+                })
+            };
+            sql.query('DELETE FROM events WHERE event_id = ?', eventId, (err, res) => {
+                if (err) {
+                    console.log('error: ', err);
+                    return sql.rollback(function () {
+                        result(null, err);
+                    })
+                }
 
-        if (res.affectedRows == 0) {
-            result({ kind: 'not_found' }, null);
-            return;
-        }
+                if (res.affectedRows == 0) {
+                    result({ kind: 'not_found' }, null);
+                    return;
+                }
 
-        console.log('deleted customer with id: ', eventId);
-        result(null, res);
+                sql.commit(function (err) {
+                    if (err) {
+                        return sql.rollback(function () {
+                            throw err;
+                        });
+                    }
+                    console.log('deleted customer with id: ', eventId);
+                    result(null, res);
+                });
+            });
+        });
     });
 }
 
