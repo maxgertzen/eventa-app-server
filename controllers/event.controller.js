@@ -7,21 +7,17 @@ exports.create = (req, res) => {
         })
     };
 
-    let imageString = req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : '/image-placeholder.png';
-
     const event = new Event({
         name: req.body.name,
         description: req.body.description,
         price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
-        imageupload: imageString || '',
-        isPublic: req.body.isPublic
+        imageupload: req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : '/image-placeholder.png',
+        isPublic: req.body.isPublic ? 1 : 0
     })
 
-    let userId = req.cookies.user.split('?')[0];
-
-    event.user_id = userId
+    event.user_id = req.cookies.user.split('?')[0]
 
     Event.create(event, (err, data) => {
         if (err) {

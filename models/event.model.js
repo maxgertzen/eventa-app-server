@@ -7,6 +7,7 @@ const Event = function (event) {
     this.dateEnd = new Date(event.dateEnd).toISOString().slice(0, 19).replace('T', ' ');
     this.image = event.imageupload;
     this.isPublic = event.isPublic
+    this.price = event.price
 }
 
 Event.create = (newEvent, result) => {
