@@ -1,20 +1,46 @@
 const sql = require('./db.js');
+const location = require('./location.model')
 
 const User = function (user) {
     this.email = user.email;
     this.password = user.password;
+    this.first_name = user.firstName;
+    this.last_name = user.lastName;
+    this.accept_mail = user.acceptMail || 0;
 }
 
 User.create = (newUser, result) => {
-    sql.query('INSERT INTO users SET ?', newUser, (err, res) => {
-        if (err) {
-            console.error(err);
-            result(err, null);
-            return;
-        }
+    let userAddress = new location(newUser);
+    sql.beginTransaction(function (err) {
+        if (err) { throw err; };
+        sql.query('INSERT INTO address SET ?', userAddress, (err, res) => {
+            if (err) {
+                return sql.rollback(function () {
+                    result(null, err);
+                });
+            };
+            newUser.address_id = res.insertId;
 
-        console.log('created user: ', { 'user_id': res.insertId, ...newUser });
-        result(null, { 'user_id': res.insertId, ...newUser });
+            sql.query('INSERT INTO users SET ?', newUser, (err, res) => {
+                if (err) {
+                    console.log('error: ', err);
+                    return sql.rollback(function () {
+                        result(err, null);
+                    })
+                }
+
+
+                sql.commit(function (err) {
+                    if (err) {
+                        return sql.rollback(function () {
+                            throw err;
+                        });
+                    }
+                    console.log('created user: ', { 'user_id': res.insertId, ...newUser });
+                    result(null, { firstName: newUser.first_name, userId: res.insertId });
+                });
+            });
+        });
     })
 }
 
@@ -37,7 +63,7 @@ User.findById = (userId, result) => {
 }
 
 User.findByEmail = (userCreds, result) => {
-    sql.query('SELECT firstName, user_id, password FROM users WHERE email = ?', userCreds.email, (err, res) => {
+    sql.query('SELECT first_name as `firstName`, user_id, password FROM users WHERE email = ?', userCreds.email, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
@@ -57,6 +83,22 @@ User.findByEmail = (userCreds, result) => {
         }
 
         result({ kind: 'not_found' }, null)
+    })
+}
+User.checkEmail = (userEmail, result) => {
+    console.log('THIS IS USEREMAIL IN MODEL  ', userEmail)
+    sql.query("SELECT email FROM users WHERE email = ?", userEmail, (err, res) => {
+        if (err) {
+            result(err, null);
+            return;
+        }
+
+        if (res.length) {
+            result({ message: 'Email is being used' }, null);
+            return
+        }
+
+        result(null, true)
     })
 }
 

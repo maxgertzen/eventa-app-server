@@ -1,11 +1,7 @@
 const sql = require('./db.js');
 const fs = require('fs');
+const location = require('./location.model')
 
-const Location = function (location) {
-    this.address = location.address;
-    this.city_id = location.city_id;
-    this.zip_code = location.zipCode;
-}
 
 const Venue = function (venue) {
     this.name = venue.name;

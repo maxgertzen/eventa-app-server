@@ -10,10 +10,12 @@ router.post('/login', validation(userAuthSchema), auth.login)
 
 router.get('/logout', validateCookie, (req, res) => {
     res.clearCookie('user');
-    res.status(200).redirect('../')
+    res.status(200).redirect('../signin')
 })
 
-router.post('/register', validation(userAuthSchema), auth.register)
+router.post('/email', auth.check)
+
+router.post('/register', auth.register)
 
 
 module.exports = router;
