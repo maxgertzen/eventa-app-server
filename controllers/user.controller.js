@@ -37,21 +37,24 @@ exports.findAll = (req, res) => {
 
 // Find a single user with a userId
 exports.findOne = (req, res) => {
-    if (req.params.userId) {
-        User.findById(req.params.userId, (err, data) => {
+    if (!req.body.email) {
+        let id = parseInt(req.cookies.user.split('?')[0]);
+        console.log('gets here')
+        console.log(id)
+        User.findById(id, (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
-                    res.status(404).send({
-                        message: `Not found user with id ${req.params.userId}.`
-                    });
+                    res.status(404).send(new Error({
+                        message: `Not found user with id ${id}.`
+                    }));
                 } else {
-                    res.status(500).send({
-                        message: "Error retrieving user with id " + req.params.userId
-                    });
+                    res.status(500).send(new Error({
+                        message: "Error retrieving user with id " + id
+                    }));
                 }
-            } else { res.send(data) }
+            } else { res.status(200).send(data) }
         })
-    } else if (req.body.email) {
+    } else {
         User.findByEmail(req.body, (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {

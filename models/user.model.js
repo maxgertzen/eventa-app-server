@@ -45,7 +45,7 @@ User.create = (newUser, result) => {
 }
 
 User.findById = (userId, result) => {
-    sql.query('SELECT * FROM users WHERE ? ', userId, (err, res) => {
+    sql.query('SELECT u.user_id, first_name, u.last_name, u.birth_date, u.phone, u.accept_mail, a.address, ci.Name, co.name, co.Region FROM users u JOIN address a on a.address_id = u.address_id JOIN city ci on ci.id = a.city_id JOIN country co on ci.CountryCode = co.Code where u.user_id = ?', userId, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
@@ -53,8 +53,9 @@ User.findById = (userId, result) => {
         }
 
         if (res.length) {
-            console.log('found user: ${res[0]}');
-            result(null, res[0]);
+            console.log(res)
+            console.log(`found user: ${res[0]} `);
+            result(null, res);
             return;
         }
 
@@ -71,7 +72,7 @@ User.findByEmail = (userCreds, result) => {
         }
 
         if (res.length) {
-            console.log(`found user: ${res[0]}`);
+            console.log(`found user: ${res[0]} `);
             if (res[0].password === userCreds.password) {
                 console.log(res)
                 result(null, res[0]);

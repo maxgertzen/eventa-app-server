@@ -51,7 +51,7 @@ Event.findByUserId = (userId, result) => {
         }
 
         if (res.length) {
-            result(null, res);
+            result(null, { userEvents: res, count: res.length });
             return;
         }
 
