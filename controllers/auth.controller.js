@@ -1,3 +1,4 @@
+const Location = require('../models/location.model');
 const User = require('../models/user.model');
 
 // Create and Save a new user
@@ -9,6 +10,7 @@ exports.register = (req, res) => {
     };
 
     const user = new User(req.body)
+    user.address = new Location(req.body);
 
     User.create(user, (err, data) => {
         if (err) {
@@ -17,9 +19,11 @@ exports.register = (req, res) => {
                     err.message || "Some error occurred while creating the User."
             }));
         } else {
-            let userString = data.userId + '?' + data.firstName;
+            console.log(data)
+            let userString = data.user_id + '?' + data.firstName;
+            console.log(userString)
             res.cookie('user', userString);
-            res.status(200).send({ message: "Welcome" })
+            res.status(200).send(data)
         }
     })
 };

@@ -1,5 +1,4 @@
 const sql = require('./db.js');
-const location = require('./location.model')
 
 const User = function (user) {
     this.email = user.email;
@@ -9,19 +8,20 @@ const User = function (user) {
     this.accept_mail = user.acceptMail || 0;
 }
 
+
 User.create = (newUser, result) => {
-    let userAddress = new location(newUser);
     sql.beginTransaction(function (err) {
         if (err) { throw err; };
-        sql.query('INSERT INTO address SET ?', userAddress, (err, res) => {
+        sql.query('INSERT INTO address SET ?', newUser.address, (err, res) => {
             if (err) {
                 return sql.rollback(function () {
                     result(null, err);
                 });
             };
             newUser.address_id = res.insertId;
+            let { address, ...finalUser } = newUser;
 
-            sql.query('INSERT INTO users SET ?', newUser, (err, res) => {
+            sql.query('INSERT INTO users SET ?', finalUser, (err, res) => {
                 if (err) {
                     console.log('error: ', err);
                     return sql.rollback(function () {
@@ -36,16 +36,15 @@ User.create = (newUser, result) => {
                             throw err;
                         });
                     }
-                    console.log('created user: ', { 'user_id': res.insertId, ...newUser });
-                    result(null, { firstName: newUser.first_name, userId: res.insertId });
+                    console.log(res[0])
+                    console.log('created user: ', { 'user_id': res.insertId, ...finalUser });
+                    console.log(finalUser)
+                    result(null, { firstName: finalUser.first_name, user_id: res.insertId });
                 });
             });
         });
     })
 }
-let query = 'SELECT * FROM users u INNER JOIN address a on a.address_id = u.address_id INNER JOIN city ci on ci.id = a.city_id INNER JOIN country co on ci.CountryCode = co.Code where u.user_id = ?';
-let q2 = 'SELECT * from `eventa`.users u INNER JOIN `eventa`.address a ON u.address_id = a.address_id where user_id = ?';
-let q3 = 'SELECT * from users where user_id = ?';
 
 User.findById = (userId, result) => {
     let q = 'SELECT u.user_id, first_name, u.last_name, u.bio, u.birth_date, u.phone, u.accept_mail, a.address, ci.Name, co.name, co.Region FROM users AS u LEFT JOIN address AS a on (a.address_id = u.address_id) LEFT JOIN city AS ci on (ci.id = a.city_id) LEFT JOIN country As co on (ci.CountryCode = co.Code) where u.user_id = ?';

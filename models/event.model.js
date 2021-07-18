@@ -100,9 +100,11 @@ Event.findById = (eventId, result) => {
         result({ kind: 'not_found' }, null)
     })
 }
+
 Event.findByUserId = (userId, result) => {
-    let queryString = "SELECT e.event_id, e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ? ORDER BY e.dateStart ASC"
-    sql.query(queryString, userId, (err, res) => {
+    let complexJoin = "SELECT e.event_id, e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id, u.first_name 'firstName', u.last_name 'lastName' ,v.address_id, a.address, ci.name 'city', co.name 'country' FROM events e left join venues v on e.venue_id = v.venue_id left join address a on v.address_id = a.address_id left join city ci on a.city_id = ci.id left join country co on co.Code = ci.CountryCode left join users u on u.user_id = e.user_id WHERE e.user_id = ? ORDER BY e.dateStart ASC"
+    // let queryString = "SELECT e.event_id, e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', e.user_id FROM events e join venues v on e.venue_id = v.venue_id WHERE e.user_id = ? ORDER BY e.dateStart ASC"
+    sql.query(complexJoin, userId, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
