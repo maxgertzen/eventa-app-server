@@ -1,5 +1,6 @@
 const Event = require('../models/event.model');
-
+const Location = require('../models/location.model');
+const Venue = require('../models/venue.model');
 exports.create = (req, res) => {
     if (!req.body) {
         res.status(400).send({
@@ -13,18 +14,22 @@ exports.create = (req, res) => {
         price: req.body.price,
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
+        category: parseInt(req.body.category),
         imageupload: req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : '/image-placeholder.png',
         isPublic: req.body.isPublic ? 1 : 0
     })
 
+    req.body.venueId ? event.venue_id = req.body.venueId : event.newVenue = { address: new Location(req.body), venue: new Venue(req.body) };
+
     event.user_id = req.cookies.user.split('?')[0]
 
+    console.log(event)
     Event.create(event, (err, data) => {
         if (err) {
-            res.status(500).send({
+            res.status(500).send(new Error({
                 message:
                     err.message || "Some error occurred while creating the User."
-            });
+            }));
         } else {
             res.status(200).send({
                 message: `${data.name} is added successfully!`

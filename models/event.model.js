@@ -9,20 +9,79 @@ const Event = function (event) {
     this.image = event.imageupload;
     this.isPublic = event.isPublic
     this.price = event.price
+    this.category_id = event.category;
 }
 
 Event.create = (newEvent, result) => {
-    sql.query('INSERT INTO events SET ?', newEvent, (err, res) => {
+    console.log(newEvent)
+    sql.beginTransaction(function (err) {
         if (err) {
-            console.error(err);
+            console.log(err)
             result(err, null);
-            return;
         }
+        if (newEvent.venue_id) {
+            sql.query('INSERT INTO events SET ?', newEvent, (err, res) => {
+                if (err) {
+                    return sql.rollback(function () {
+                        result(err, null);
+                    });
+                };
+                sql.commit(function (err) {
+                    if (err) {
+                        return sql.rollback(function () {
+                            result(err, null);
+                        });
+                    }
 
-        console.log('created event: ', { 'event_id': res.insertId, ...newEvent });
-        result(null, { 'event_id': res.insertId, ...newEvent });
+                    console.log('created event: ', { 'event_id': res.insertId, ...newEvent });
+                    result(null, { 'event_id': res.insertId, ...newEvent });
+                });
+
+            })
+        } else {
+            sql.query('INSERT INTO address SET ?', newEvent.newVenue.address, (err, res) => {
+                if (err) {
+                    return sql.rollback(function () {
+                        result(err, null);
+                    });
+                };
+
+                newEvent.newVenue.venue.address_id = res.insertId;
+                sql.query('INSERT INTO venues SET ?', newEvent.newVenue.venue, (err, res) => {
+                    if (err) {
+                        return sql.rollback(function () {
+                            result(err, null);
+                        });
+                    };
+                    console.log('SUCCESS UNTIL HERE')
+
+                    newEvent.venue_id = res.insertId;
+                    let { newVenue, ...finalEvent } = newEvent
+                    console.log('FINAL EVENT', finalEvent)
+                    sql.query('INSERT INTO events SET ?', finalEvent, (err, res) => {
+                        if (err) {
+                            return sql.rollback(function () {
+                                result(err, null);
+                            });
+                        };
+
+                        sql.commit(function (err) {
+                            if (err) {
+                                return sql.rollback(function () {
+                                    result(err, null);
+                                });
+                            }
+
+                            console.log('created event: ', { 'event_id': res.insertId, ...newEvent });
+                            result(null, { 'event_id': res.insertId, ...newEvent });
+                        });
+                    })
+                })
+            })
+        }
     })
 }
+
 
 Event.findById = (eventId, result) => {
     let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc' FROM events e join venues v on e.venue_id = v.venue_id WHERE event_id = ?"
@@ -146,7 +205,7 @@ Event.remove = (eventId, result) => {
                         result({ kind: 'not_found' }, null);
                         return;
                     }
-                    console.log('deleted customer with id: ', eventId);
+                    console.log('deleted event with id: ', eventId);
                     result(null, res);
                 });
             });

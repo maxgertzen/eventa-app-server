@@ -4,7 +4,7 @@ const location = require('./location.model')
 
 
 const Venue = function (venue) {
-    this.name = venue.name;
+    this.name = venue.venueName;
     this.description = venue.description;
     this.image = venue.imageupload;
     this.website = venue.website
