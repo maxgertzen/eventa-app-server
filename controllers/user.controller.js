@@ -35,12 +35,9 @@ exports.findAll = (req, res) => {
     })
 };
 
-// Find a single user with a userId
-exports.findOne = (req, res) => {
+exports.findOne = async (req, res) => {
     if (!req.body.email) {
-        let id = parseInt(req.cookies.user.split('?')[0]);
-        console.log('gets here')
-        console.log(id)
+        let id = await req.cookies.user.split('?')[0];
         User.findById(id, (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {

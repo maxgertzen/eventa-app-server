@@ -43,19 +43,22 @@ User.create = (newUser, result) => {
         });
     })
 }
+let query = 'SELECT * FROM users u INNER JOIN address a on a.address_id = u.address_id INNER JOIN city ci on ci.id = a.city_id INNER JOIN country co on ci.CountryCode = co.Code where u.user_id = ?';
+let q2 = 'SELECT * from `eventa`.users u INNER JOIN `eventa`.address a ON u.address_id = a.address_id where user_id = ?';
+let q3 = 'SELECT * from users where user_id = ?';
 
 User.findById = (userId, result) => {
-    sql.query('SELECT u.user_id, first_name, u.last_name, u.birth_date, u.phone, u.accept_mail, a.address, ci.Name, co.name, co.Region FROM users u JOIN address a on a.address_id = u.address_id JOIN city ci on ci.id = a.city_id JOIN country co on ci.CountryCode = co.Code where u.user_id = ?', userId, (err, res) => {
+    let q = 'SELECT u.user_id, first_name, u.last_name, u.bio, u.birth_date, u.phone, u.accept_mail, a.address, ci.Name, co.name, co.Region FROM users AS u LEFT JOIN address AS a on (a.address_id = u.address_id) LEFT JOIN city AS ci on (ci.id = a.city_id) LEFT JOIN country As co on (ci.CountryCode = co.Code) where u.user_id = ?';
+    sql.query(q, userId, (err, res) => {
         if (err) {
             console.error(err);
             result(err, null);
             return;
         }
-
+        console.log(res)
         if (res.length) {
-            console.log(res)
             console.log(`found user: ${res[0]} `);
-            result(null, res);
+            result(null, res[0]);
             return;
         }
 
