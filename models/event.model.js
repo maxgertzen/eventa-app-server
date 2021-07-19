@@ -150,26 +150,85 @@ Event.search = (searchTerm, result) => {
         })
 }
 
-Event.updateById = (eventId, event, result) => {
-    sql.query('UPDATE events SET ? WHERE id = ?',
-        [event, eventId],
-        (err, res) => {
-            if (err) {
-                console.error(err);
-                result(null, err);
-                return;
-            }
 
-            if (res.affectedRows == 0) {
-                result({ kind: 'not_found' }, null);
-                return;
-            }
+Event.updateById = (eventId, updatedEvent, result) => {
+    sql.beginTransaction(function (err) {
+        if (err) {
+            console.log(err)
+            result(err, null);
+        }
+        if (updatedEvent.venue_id) {
+            const { venueAddress, ...finalEvent } = updatedEvent;
+            sql.query('UPDATE events SET ? WHERE event_id = ?', [finalEvent, eventId], (err, res) => {
+                if (err) {
+                    return sql.rollback(function () {
+                        result(err, null);
+                    });
+                };
+                sql.commit(function (err) {
+                    if (err) {
+                        return sql.rollback(function () {
+                            result(err, null);
+                        });
+                    }
 
-            console.log('updated event: ', { id: eventId, ...event });
-            result(null, { id: eventId, ...event })
-        })
+                    if (res.affectedRows == 0) {
+                        result({ kind: 'not_found' }, null);
+                        return;
+                    }
+
+                    console.log('updated event: ', { 'event_id': res.insertId, ...newEvent });
+                    result(null, { 'event_id': res.insertId, ...newEvent });
+                });
+
+            })
+        } else {
+            sql.query('INSERT INTO address SET ?', updatedEvent.venueAddress.address, (err, res) => {
+                if (err) {
+                    return sql.rollback(function () {
+                        result(err, null);
+                    });
+                };
+
+                updatedEvent.venueAddress.venue.address_id = res.insertId;
+                sql.query('INSERT INTO venues SET ?', updatedEvent.venueAddress.venue, (err, res) => {
+                    if (err) {
+                        return sql.rollback(function () {
+                            result(err, null);
+                        });
+                    };
+                    console.log('SUCCESS UNTIL HERE')
+
+                    updatedEvent.venue_id = res.insertId;
+                    let { venueAddress, ...finalEvent } = updatedEvent
+                    sql.query('UPDATE events SET ? WHERE event_id = ?', [finalEvent, eventId], (err, res) => {
+                        if (err) {
+                            return sql.rollback(function () {
+                                result(err, null);
+                            });
+                        };
+
+                        sql.commit(function (err) {
+                            if (err) {
+                                return sql.rollback(function () {
+                                    result(err, null);
+                                });
+                            }
+
+                            if (res.affectedRows == 0) {
+                                result({ kind: 'not_found' }, null);
+                                return;
+                            }
+
+                            console.log('updated event: ', { 'event_id': res.insertId, ...finalEvent });
+                            result(null, { 'event_id': res.insertId, ...finalEvent });
+                        });
+                    })
+                })
+            })
+        }
+    })
 }
-
 Event.remove = (eventId, result) => {
     sql.beginTransaction(function (err) {
         if (err) { throw err; }

@@ -3,9 +3,9 @@ const Location = require('../models/location.model');
 const Venue = require('../models/venue.model');
 exports.create = (req, res) => {
     if (!req.body) {
-        res.status(400).send({
+        res.status(400).send(new Error({
             message: "Cannot be empty"
-        })
+        }))
     };
 
     const event = new Event({
@@ -23,7 +23,6 @@ exports.create = (req, res) => {
 
     event.user_id = req.cookies.user.split('?')[0]
 
-    console.log(event)
     Event.create(event, (err, data) => {
         if (err) {
             res.status(500).send(new Error({
@@ -36,6 +35,53 @@ exports.create = (req, res) => {
             })
         }
     })
+};
+
+exports.update = (req, res) => {
+    if (!req.body) {
+        res.status(400).send({
+            message: "Content can not be empty!"
+        });
+    }
+
+    const event = new Event({
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        dateStart: req.body.dateStart,
+        dateEnd: req.body.dateEnd,
+        category: parseInt(req.body.category),
+        imageupload: req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : undefined,
+        isPublic: req.body.isPublic ? 1 : 0
+    })
+
+    if (req.body.venueId) {
+        event.venue_id = req.body.venueId
+    }
+    event.venueDetails = { address: new Location(req.body), venue: new Venue(req.body) };
+
+    event.user_id = req.cookies.user.split('?')[0]
+
+    if (!event.image) {
+        delete event.image;
+    }
+    Event.updateById(
+        req.params.eventId,
+        event,
+        (err, data) => {
+            if (err) {
+                if (err.kind === "not_found") {
+                    res.status(404).send(new Error({
+                        message: `Not found Event with id ${req.params.eventId}.`
+                    }));
+                } else {
+                    res.status(500).send(new Error({
+                        message: "Error updating Event with id " + req.params.eventId
+                    }));
+                }
+            } else res.send(data);
+        }
+    );
 };
 
 exports.findAll = (req, res) => {
@@ -96,31 +142,7 @@ exports.getUserEvents = (req, res) => {
     })
 }
 
-exports.update = (req, res) => {
-    if (!req.body) {
-        res.status(400).send({
-            message: "Content can not be empty!"
-        });
-    }
 
-    Event.updateById(
-        req.params.eventId,
-        new Event(req.body),
-        (err, data) => {
-            if (err) {
-                if (err.kind === "not_found") {
-                    res.status(404).send({
-                        message: `Not found Event with id ${req.params.eventId}.`
-                    });
-                } else {
-                    res.status(500).send({
-                        message: "Error updating Event with id " + req.params.eventId
-                    });
-                }
-            } else res.send(data);
-        }
-    );
-};
 
 exports.delete = (req, res) => {
     Event.remove(req.params.eventId, (err, data) => {
