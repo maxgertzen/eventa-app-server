@@ -84,7 +84,7 @@ Event.create = (newEvent, result) => {
 
 
 Event.findById = (eventId, result) => {
-    let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc', a.address, ci.Name 'city', co.Name 'country' FROM events e left join venues v on e.venue_id = v.venue_id left join address a on a.address_id = v.address_id left join city ci on a.city_id = ci.id left join country co on ci.CountryCode = co.Code where event_id = ?"
+    let queryString = "SELECT e.name 'eventName', e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic, v.venue_id 'venueId', v.name 'venueName', v.description 'venueDesc' FROM events e join venues v on e.venue_id = v.venue_id WHERE event_id = ?"
     sql.query(queryString, eventId, (err, res) => {
         if (err) {
             console.error(err);
