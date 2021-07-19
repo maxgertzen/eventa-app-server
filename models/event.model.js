@@ -121,7 +121,7 @@ Event.findByUserId = (userId, result) => {
 
 
 Event.getAll = result => {
-    sql.query('SELECT * FROM events WHERE isPublic = 1', (err, res) => {
+    sql.query('SELECT e.event_id, e.name `eventName`, c.name `categoryName`, e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic FROM events e LEFT JOIN category c ON e.category_id = c.category_id  WHERE isPublic = 1', (err, res) => {
         if (err) {
             console.log('error: ', err);
             result(null, err);
@@ -212,18 +212,18 @@ Event.remove = (eventId, result) => {
             });
         });
     });
-}
+};
 
 Event.getCategories = result => {
-    sql.query('SELECT name, category_id FROM categories', (err, res) => {
+    sql.query('SELECT * FROM category', (err, res) => {
         if (err) {
             console.log('error: ', err);
-            result(null, err);
+            result(err, null);
             return;
         }
 
         result(null, res);
     });
-}
+};
 
 module.exports = Event

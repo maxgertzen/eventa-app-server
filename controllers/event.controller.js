@@ -143,10 +143,10 @@ exports.delete = (req, res) => {
 exports.categories = (req, res) => {
     Event.getCategories((err, data) => {
         if (err) {
-            res.status(500).send({
+            res.status(500).send(new Error({
                 message:
-                    err.message || "Some error occurred while retrieving categories."
-            })
+                    /* err.message ||  */"Some error occurred while retrieving categories."
+            }))
         } else { res.send(data) }
     })
 }

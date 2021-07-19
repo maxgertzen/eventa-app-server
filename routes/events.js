@@ -5,25 +5,17 @@ const event = require('../controllers/event.controller');
 const uploadImage = require('../middlewares/multerConfig');
 const validateCookie = require('../middlewares/validateCookieMiddleware');
 
-router.route('/')
-    .get(event.findAll)
+router.get('/', event.findAll)
+router.get('/dashboard', event.getUserEvents)
+router.get('/s', event.findSome)
+router.get('/categories', event.categories)
 
-router.route('/dashboard')
-    .get(event.getUserEvents)
+router.get('/:eventId', event.findOne)
+router.put('/:eventId', validateCookie, event.update)
+router.delete('/:eventId', validateCookie, event.delete)
 
-router.route('/s')
-    .get(event.findSome)
 
-router.route('/:eventId')
-    .get(event.findOne)
-    .put(validateCookie, event.update)
-    .delete(validateCookie, event.delete)
-
-router.route('/categories')
-    .get(event.categories)
-
-router.route('/create')
-    .post(validateCookie, uploadImage, event.create)
+router.post('/create', validateCookie, uploadImage, event.create)
 
 
 module.exports = router
