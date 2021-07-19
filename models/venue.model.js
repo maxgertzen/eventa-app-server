@@ -5,9 +5,6 @@ const location = require('./location.model')
 
 const Venue = function (venue) {
     this.name = venue.venueName;
-    this.description = venue.description;
-    this.image = venue.imageupload;
-    this.website = venue.website
 }
 
 // Venue.create = (newEvent, result) => {

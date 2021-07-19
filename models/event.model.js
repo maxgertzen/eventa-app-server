@@ -23,12 +23,14 @@ Event.create = (newEvent, result) => {
             sql.query('INSERT INTO events SET ?', newEvent, (err, res) => {
                 if (err) {
                     return sql.rollback(function () {
+                        console.log(err)
                         result(err, null);
                     });
                 };
                 sql.commit(function (err) {
                     if (err) {
                         return sql.rollback(function () {
+                            console.log(err)
                             result(err, null);
                         });
                     }
@@ -39,21 +41,25 @@ Event.create = (newEvent, result) => {
 
             })
         } else {
+            console.log('got here')
             sql.query('INSERT INTO address SET ?', newEvent.newVenue.address, (err, res) => {
                 if (err) {
                     return sql.rollback(function () {
+                        console.log(err)
                         result(err, null);
                     });
                 };
+                console.log('Created Address with id ' + res.insertId)
 
                 newEvent.newVenue.venue.address_id = res.insertId;
                 sql.query('INSERT INTO venues SET ?', newEvent.newVenue.venue, (err, res) => {
                     if (err) {
                         return sql.rollback(function () {
+                            console.log(err)
                             result(err, null);
                         });
                     };
-                    console.log('SUCCESS UNTIL HERE')
+                    console.log('success insert venue ' + res.insertId)
 
                     newEvent.venue_id = res.insertId;
                     let { newVenue, ...finalEvent } = newEvent
@@ -61,6 +67,7 @@ Event.create = (newEvent, result) => {
                     sql.query('INSERT INTO events SET ?', finalEvent, (err, res) => {
                         if (err) {
                             return sql.rollback(function () {
+                                console.log(err)
                                 result(err, null);
                             });
                         };
@@ -158,7 +165,7 @@ Event.updateById = (eventId, updatedEvent, result) => {
             result(err, null);
         }
         if (updatedEvent.venue_id) {
-            const { venueAddress, ...finalEvent } = updatedEvent;
+            const { venueDetails, ...finalEvent } = updatedEvent;
             sql.query('UPDATE events SET ? WHERE event_id = ?', [finalEvent, eventId], (err, res) => {
                 if (err) {
                     return sql.rollback(function () {
@@ -177,21 +184,21 @@ Event.updateById = (eventId, updatedEvent, result) => {
                         return;
                     }
 
-                    console.log('updated event: ', { 'event_id': res.insertId, ...newEvent });
-                    result(null, { 'event_id': res.insertId, ...newEvent });
+                    console.log('updated event: ', { 'event_id': res.insertId, ...updatedEvent });
+                    result(null, { 'event_id': res.insertId, ...updatedEvent });
                 });
 
             })
         } else {
-            sql.query('INSERT INTO address SET ?', updatedEvent.venueAddress.address, (err, res) => {
+            sql.query('INSERT INTO address SET ?', updatedEvent.venueDetails.address, (err, res) => {
                 if (err) {
                     return sql.rollback(function () {
                         result(err, null);
                     });
                 };
 
-                updatedEvent.venueAddress.venue.address_id = res.insertId;
-                sql.query('INSERT INTO venues SET ?', updatedEvent.venueAddress.venue, (err, res) => {
+                updatedEvent.venueDetails.venue.address_id = res.insertId;
+                sql.query('INSERT INTO venues SET ?', updatedEvent.venueDetails.venue, (err, res) => {
                     if (err) {
                         return sql.rollback(function () {
                             result(err, null);
@@ -200,7 +207,7 @@ Event.updateById = (eventId, updatedEvent, result) => {
                     console.log('SUCCESS UNTIL HERE')
 
                     updatedEvent.venue_id = res.insertId;
-                    let { venueAddress, ...finalEvent } = updatedEvent
+                    let { venueDetails, ...finalEvent } = updatedEvent
                     sql.query('UPDATE events SET ? WHERE event_id = ?', [finalEvent, eventId], (err, res) => {
                         if (err) {
                             return sql.rollback(function () {

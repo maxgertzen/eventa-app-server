@@ -27,7 +27,7 @@ exports.create = (req, res) => {
         if (err) {
             res.status(500).send(new Error({
                 message:
-                    err.message || "Some error occurred while creating the User."
+                    err || "Some error occurred while creating the User."
             }));
         } else {
             res.status(200).send({
@@ -39,9 +39,9 @@ exports.create = (req, res) => {
 
 exports.update = (req, res) => {
     if (!req.body) {
-        res.status(400).send({
+        res.status(400).send(new Error({
             message: "Content can not be empty!"
-        });
+        }));
     }
 
     const event = new Event({
@@ -51,9 +51,10 @@ exports.update = (req, res) => {
         dateStart: req.body.dateStart,
         dateEnd: req.body.dateEnd,
         category: parseInt(req.body.category),
-        imageupload: req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : undefined,
+        imageupload: req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : null,
         isPublic: req.body.isPublic ? 1 : 0
     })
+    console.log(event)
 
     if (req.body.venueId) {
         event.venue_id = req.body.venueId
@@ -65,6 +66,7 @@ exports.update = (req, res) => {
     if (!event.image) {
         delete event.image;
     }
+    console.log(event)
     Event.updateById(
         req.params.eventId,
         event,

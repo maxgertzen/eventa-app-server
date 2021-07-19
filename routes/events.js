@@ -11,7 +11,7 @@ router.get('/s', event.findSome)
 router.get('/categories', event.categories)
 
 router.get('/:eventId', event.findOne)
-router.put('/:eventId', validateCookie, event.update)
+router.put('/:eventId', validateCookie, uploadImage, event.update)
 router.delete('/:eventId', validateCookie, event.delete)
 
 
