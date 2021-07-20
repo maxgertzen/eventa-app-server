@@ -94,14 +94,12 @@ User.checkEmail = (userEmail, userId, result) => {
             result(err, null);
             return;
         }
-        console.log('*************')
-        console.log(res[0].user_id)
-        console.log(res[0])
-        console.log(userId)
-        console.log('*************')
-        if (res.length && parseInt(res[0].user_id) === parseInt(userId)) {
-            result(null, true)
-            return
+
+        if (userId) {
+            if (res.length && parseInt(res[0].user_id) === parseInt(userId)) {
+                result(null, true)
+                return
+            }
         }
 
         if (res.length) {

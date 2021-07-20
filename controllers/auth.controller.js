@@ -4,9 +4,9 @@ const User = require('../models/user.model');
 // Create and Save a new user
 exports.register = (req, res) => {
     if (!req.body) {
-        res.status(400).send(new Error({
+        res.status(400).send({
             message: "Cannot be empty"
-        }))
+        })
     };
 
     const user = new User(req.body)
@@ -14,10 +14,10 @@ exports.register = (req, res) => {
 
     User.create(user, (err, data) => {
         if (err) {
-            res.status(500).send(new Error({
+            res.status(500).send({
                 message:
                     err.message || "Some error occurred while creating the User."
-            }));
+            });
         } else {
             console.log(data)
             let userString = data.user_id + '?' + data.firstName;
@@ -32,13 +32,9 @@ exports.login = (req, res) => {
     User.findByEmail(req.body, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
-                res.status(404).send(new Error({
-                    message: `Not found user with email ${req.body.email}.`
-                }));
+                res.status(404).json(`Either email or password is wrong.`);
             } else {
-                res.status(500).send(new Error({
-                    message: "Error retrieving user with email " + req.body.email
-                }));
+                res.status(500).json("Error retrieving user");
             }
         } else {
             let userString = data.user_id + '?' + data.firstName;
@@ -52,11 +48,9 @@ exports.check = async (req, res) => {
     User.checkEmail(req.body.email, req.body.userId, (err, data) => {
         if (err) {
             if (err.message) {
-                console.log(err)
-                console.log(err.message)
                 res.status(308).send(new Error(false));
             } else {
-                res.status(500).send(new Error({ message: "Error Checking DB" }))
+                res.status(500).json("Error Checking DB")
             }
         } else {
             res.status(200).send(data)

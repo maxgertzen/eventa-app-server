@@ -3,9 +3,7 @@ const Location = require('../models/location.model');
 const Venue = require('../models/venue.model');
 exports.create = (req, res) => {
     if (!req.body) {
-        res.status(400).send(new Error({
-            message: "Cannot be empty"
-        }))
+        res.status(400).json("Cannot be empty")
     };
 
     const event = new Event({
@@ -25,10 +23,7 @@ exports.create = (req, res) => {
 
     Event.create(event, (err, data) => {
         if (err) {
-            res.status(500).send(new Error({
-                message:
-                    err || "Some error occurred while creating the User."
-            }));
+            res.status(500).json("Some error occurred while creating the User.");
         } else {
             res.status(200).send({
                 message: `${data.name} is added successfully!`
@@ -39,9 +34,7 @@ exports.create = (req, res) => {
 
 exports.update = (req, res) => {
     if (!req.body) {
-        res.status(400).send(new Error({
-            message: "Content can not be empty!"
-        }));
+        res.status(400).json("Content can not be empty!");
     }
 
     const event = new Event({
@@ -54,7 +47,6 @@ exports.update = (req, res) => {
         imageupload: req.file ? `http://localhost:3100/${req.file.path.replace("public\\", "")}` : null,
         isPublic: req.body.isPublic ? 1 : 0
     })
-    console.log(event)
 
     if (req.body.venueId) {
         event.venue_id = req.body.venueId
@@ -73,13 +65,9 @@ exports.update = (req, res) => {
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
-                    res.status(404).send(new Error({
-                        message: `Not found Event with id ${req.params.eventId}.`
-                    }));
+                    res.status(404).json(`Not found Event with id ${req.params.eventId}.`);
                 } else {
-                    res.status(500).send(new Error({
-                        message: "Error updating Event with id " + req.params.eventId
-                    }));
+                    res.status(500).json("Error updating Event with id " + req.params.eventId);
                 }
             } else res.send(data);
         }
@@ -116,13 +104,9 @@ exports.findOne = async (req, res) => {
     Event.findById(req.params.eventId, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
-                res.status(404).send({
-                    message: `Not found event with id ${req.params.eventId}.`
-                });
+                res.status(404).json(`Not found event with id ${req.params.eventId}.`);
             } else {
-                res.status(500).send({
-                    message: "Error retrieving event with id " + req.params.eventId
-                });
+                res.status(500).json("Error retrieving event with id " + req.params.eventId);
             }
         } else { res.status(200).send(data) }
     })
@@ -138,9 +122,7 @@ exports.getUserEvents = (req, res) => {
                     message: 'No events for current user'
                 })
             } else {
-                res.status(500).send({
-                    message: 'Error retrieving user events'
-                })
+                res.status(500).json('Error retrieving user events')
             }
         } else {
             res.status(200).send(data)
@@ -154,13 +136,9 @@ exports.delete = (req, res) => {
     Event.remove(req.params.eventId, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
-                res.status(404).send({
-                    message: `Not found Event with id ${req.params.eventId}.`
-                })
+                res.status(404).json(`Not found Event with id ${req.params.eventId}.`)
             } else {
-                res.status(500).send({
-                    message: "Could not delete Event with id " + req.params.eventId
-                });
+                res.status(500).json("Could not delete Event with " + req.params.eventId);
             }
         } else {
             res.send({ message: `Event was deleted successfully!` });
@@ -171,10 +149,7 @@ exports.delete = (req, res) => {
 exports.categories = (req, res) => {
     Event.getCategories((err, data) => {
         if (err) {
-            res.status(500).send(new Error({
-                message:
-                    /* err.message ||  */"Some error occurred while retrieving categories."
-            }))
+            res.status(500).json("Some error occurred while retrieving categories.")
         } else { res.send(data) }
     })
 }
@@ -189,9 +164,7 @@ exports.save = (req, res) => {
     }
     Event.addToSaved(req.params.eventId, uid, (err, data) => {
         if (err) {
-            res.status(500).send(new Error({
-                message: "Error saving event"
-            }))
+            res.status(500).json("Error saving event")
         } else {
             res.send(data)
         }
