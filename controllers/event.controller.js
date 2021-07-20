@@ -87,7 +87,11 @@ exports.update = (req, res) => {
 };
 
 exports.findAll = (req, res) => {
-    Event.getAll((err, data) => {
+    let uid;
+    if (req.cookies.user) {
+        uid = req.cookies.user.split('?')[0]
+    }
+    Event.getAll(uid, (err, data) => {
         if (err) {
             res.status(500).send({
                 message:
@@ -172,5 +176,24 @@ exports.categories = (req, res) => {
                     /* err.message ||  */"Some error occurred while retrieving categories."
             }))
         } else { res.send(data) }
+    })
+}
+
+exports.save = (req, res) => {
+    let { cookies } = req;
+    let uid;
+    if ("user" in cookies) {
+        uid = cookies.user.split('?')[0];
+    } else {
+        uid = req.body.userId
+    }
+    Event.addToSaved(req.params.eventId, uid, (err, data) => {
+        if (err) {
+            res.status(500).send(new Error({
+                message: "Error saving event"
+            }))
+        } else {
+            res.send(data)
+        }
     })
 }

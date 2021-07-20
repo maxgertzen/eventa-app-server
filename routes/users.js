@@ -8,10 +8,9 @@ router.route('/')
   .get(users.findAll)
   .post(users.create)
 
-router.route('/dashboard')
-  .get(validateCookie, users.findOne)
-  .put(users.update)
-  .delete(users.delete)
+router.get('/dashboard', validateCookie, users.findOne)
+
+router.put('/dashboard/:userId', users.update)
 
 
 module.exports = router

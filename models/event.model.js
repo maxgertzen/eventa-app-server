@@ -127,16 +127,55 @@ Event.findByUserId = (userId, result) => {
 }
 
 
-Event.getAll = result => {
-    sql.query('SELECT e.event_id, e.name `eventName`, c.name `categoryName`, e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic FROM events e LEFT JOIN category c ON e.category_id = c.category_id  WHERE isPublic = 1', (err, res) => {
-        if (err) {
-            console.log('error: ', err);
-            result(null, err);
-            return;
-        }
+Event.getAll = (uid, result) => {
+    console.log(uid)
+    if (uid) {
+        sql.beginTransaction(function (err) {
+            if (err) {
+                console.log(err)
+                result(err, null);
+            }
 
-        result(null, res);
-    });
+            sql.query('SELECT event_id FROM guestlist WHERE user_id = ?', uid, (err, res) => {
+                if (err) {
+                    return sql.rollback(function () {
+                        result(err, null);
+                    });
+                };
+
+                let savedEvents = res;
+                console.log(savedEvents)
+                sql.query('SELECT e.event_id, e.name `eventName`, c.name `categoryName`, e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic FROM events e LEFT JOIN category c ON e.category_id = c.category_id  WHERE isPublic = 1', (err, res) => {
+                    if (err) {
+                        console.log('error: ', err);
+                        result(null, err);
+                        return;
+                    }
+
+
+                    sql.commit(function (err) {
+                        if (err) {
+                            return sql.rollback(function () {
+                                result(err, null);
+                            });
+                        }
+                        console.log({ events: res, saved: savedEvents })
+                        result(null, { events: res, saved: savedEvents });
+                    });
+                })
+
+            });
+        })
+    } else {
+        sql.query('SELECT e.event_id, e.name `eventName`, c.name `categoryName`, e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic FROM events e LEFT JOIN category c ON e.category_id = c.category_id  WHERE isPublic = 1', (err, res) => {
+            if (err) {
+                console.log('error: ', err);
+                result(null, err);
+                return;
+            }
+            result(null, { events: res });
+        });
+    }
 }
 
 Event.search = (searchTerm, result) => {
@@ -291,5 +330,18 @@ Event.getCategories = result => {
         result(null, res);
     });
 };
+
+Event.addToSaved = (eventId, userId, result) => {
+    sql.query('INSERT INTO guestlist SET `event_id` = ?, `user_id` = ?', [eventId, userId], (err, res) => {
+        if (err) {
+            console.log('error: ', err);
+            result(err, null);
+            return;
+        }
+
+        console.log('added to saved')
+        result(null, res);
+    })
+}
 
 module.exports = Event

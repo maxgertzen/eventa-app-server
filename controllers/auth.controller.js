@@ -48,15 +48,15 @@ exports.login = (req, res) => {
     })
 };
 
-exports.check = (req, res) => {
-    User.checkEmail(req.body.email, (err, data) => {
+exports.check = async (req, res) => {
+    User.checkEmail(req.body.email, req.body.userId, (err, data) => {
         if (err) {
             if (err.message) {
                 console.log(err)
                 console.log(err.message)
                 res.status(308).send(new Error(false));
             } else {
-                res.status(500).send({ message: "Error Checking DB" })
+                res.status(500).send(new Error({ message: "Error Checking DB" }))
             }
         } else {
             res.status(200).send(data)

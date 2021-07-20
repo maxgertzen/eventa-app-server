@@ -77,18 +77,29 @@ exports.update = (req, res) => {
         });
     }
 
+    let user = {
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        bio: req.body.bio,
+        birth_date: req.body.birth_date,
+        location: {
+            address: req.body.address,
+            city_id: req.body.city
+        }
+    }
+
     User.updateById(
         req.params.userId,
-        new User(req.body),
+        user,
         (err, data) => {
             if (err) {
                 if (err.kind === "not_found") {
                     res.status(404).send({
-                        message: `Not found User with id ${req.params.userId}.`
+                        message: `Not found User with id ${req.body.userId}.`
                     });
                 } else {
                     res.status(500).send({
-                        message: "Error updating User with id " + req.params.userId
+                        message: "Error updating User with id " + req.body.userId
                     });
                 }
             } else res.send(data);
@@ -114,3 +125,4 @@ exports.delete = (req, res) => {
         }
     })
 };
+

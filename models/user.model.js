@@ -47,7 +47,7 @@ User.create = (newUser, result) => {
 }
 
 User.findById = (userId, result) => {
-    let q = 'SELECT u.user_id, first_name, u.last_name, u.bio, u.birth_date, u.phone, u.accept_mail, a.address, ci.Name, co.name, co.Region FROM users AS u LEFT JOIN address AS a on (a.address_id = u.address_id) LEFT JOIN city AS ci on (ci.id = a.city_id) LEFT JOIN country As co on (ci.CountryCode = co.Code) where u.user_id = ?';
+    let q = 'SELECT u.user_id, u.email,first_name, u.last_name, u.bio, u.birth_date, u.phone, u.accept_mail, a.address, ci.Name `City`, co.name `Country`, co.Region `Region` FROM users AS u LEFT JOIN address AS a on (a.address_id = u.address_id) LEFT JOIN city AS ci on (ci.id = a.city_id) LEFT JOIN country As co on (ci.CountryCode = co.Code) where u.user_id = ?';
     sql.query(q, userId, (err, res) => {
         if (err) {
             console.error(err);
@@ -88,12 +88,20 @@ User.findByEmail = (userCreds, result) => {
         result({ kind: 'not_found' }, null)
     })
 }
-User.checkEmail = (userEmail, result) => {
-    console.log('THIS IS USEREMAIL IN MODEL  ', userEmail)
-    sql.query("SELECT email FROM users WHERE email = ?", userEmail, (err, res) => {
+User.checkEmail = (userEmail, userId, result) => {
+    sql.query("SELECT user_id, email FROM users WHERE email = ?", userEmail, (err, res) => {
         if (err) {
             result(err, null);
             return;
+        }
+        console.log('*************')
+        console.log(res[0].user_id)
+        console.log(res[0])
+        console.log(userId)
+        console.log('*************')
+        if (res.length && parseInt(res[0].user_id) === parseInt(userId)) {
+            result(null, true)
+            return
         }
 
         if (res.length) {
@@ -119,23 +127,39 @@ User.getAll = result => {
 }
 
 User.updateById = (userId, user, result) => {
-    sql.query('UPDATE users SET email = ?, first_name = ? WHERE id = ?',
-        [user.email, user['first_name'], userId],
-        (err, res) => {
+    sql.beginTransaction(function (err) {
+        if (err) { throw err; };
+        sql.query('INSERT INTO address SET ?', user.location, (err, res) => {
             if (err) {
-                console.error(err);
-                result(null, err);
-                return;
-            }
+                return sql.rollback(function () {
+                    result(null, err);
+                });
+            };
+            user.address_id = res.insertId;
+            const { location, ...updatedUser } = user;
 
-            if (res.affectedRows == 0) {
-                result({ kind: 'not_found' }, null);
-                return;
-            }
+            sql.query('UPDATE users SET ? where user_id = ?', [updatedUser, userId], (err, res) => {
+                if (err) {
+                    console.log('error: ', err);
+                    return sql.rollback(function () {
+                        result(err, null);
+                    })
+                }
 
-            console.log('updated user: ', { id: userId, ...user });
-            result(null, { id: userId, ...user })
-        })
+
+                sql.commit(function (err) {
+                    if (err) {
+                        return sql.rollback(function () {
+                            throw err;
+                        });
+                    }
+                    console.log('updated user: ', { 'user_id': userId, updatedUser });
+                    console.log(updatedUser)
+                    result(null, updatedUser);
+                });
+            });
+        });
+    })
 }
 
 User.remove = (userId, result) => {
