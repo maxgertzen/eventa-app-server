@@ -1,4 +1,5 @@
 const sql = require('./db.js');
+const crypto = require('crypto');
 
 const User = function (user) {
     this.email = user.email;
@@ -28,19 +29,28 @@ User.create = (newUser, result) => {
                         result(err, null);
                     })
                 }
+                let verObj = { user_id: res.insertId, token: crypto.randomBytes(16).toString('hex') };
 
-
-                sql.commit(function (err) {
+                sql.query('INSERT INTO verification SET ?', verObj, (err, res) => {
                     if (err) {
+                        console.log('error: ', err);
                         return sql.rollback(function () {
-                            throw err;
-                        });
+                            result(err, null);
+                        })
                     }
-                    console.log(res[0])
-                    console.log('created user: ', { 'user_id': res.insertId, ...finalUser });
-                    console.log(finalUser)
-                    result(null, { firstName: finalUser.first_name, user_id: res.insertId });
-                });
+
+                    sql.commit(function (err) {
+                        if (err) {
+                            return sql.rollback(function () {
+                                throw err;
+                            });
+                        }
+                        console.log(res[0])
+                        console.log('created user: ', { 'user_id': verObj.user_id, ...finalUser });
+                        console.log(finalUser)
+                        result(null, { firstName: finalUser.first_name, user_id: verObj.user_id, token: verObj.token, email: finalUser.email });
+                    });
+                })
             });
         });
     })

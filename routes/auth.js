@@ -15,6 +15,8 @@ router.get('/logout', validateCookie, (req, res) => {
 
 router.post('/email', auth.check)
 
+router.post('/verification', auth.verification)
+
 router.post('/register', auth.register)
 
 

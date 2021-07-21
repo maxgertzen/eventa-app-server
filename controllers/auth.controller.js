@@ -1,6 +1,7 @@
 const Location = require('../models/location.model');
 const User = require('../models/user.model');
-
+const Verification = require('../models/verification.model')
+const sendVerificationEmail = require('../utils/sendGridEmailHelper');
 // Create and Save a new user
 exports.register = (req, res) => {
     if (!req.body) {
@@ -19,9 +20,8 @@ exports.register = (req, res) => {
                     err.message || "Some error occurred while creating the User."
             });
         } else {
-            console.log(data)
+            sendVerificationEmail(data.email, data.token);
             let userString = data.user_id + '?' + data.firstName;
-            console.log(userString)
             res.cookie('user', userString);
             res.status(200).send(data)
         }
@@ -54,6 +54,24 @@ exports.check = async (req, res) => {
             }
         } else {
             res.status(200).send(data)
+        }
+    })
+}
+
+exports.verification = (req, res) => {
+    if (!req.body) {
+
+    }
+
+    Verification.verify(req.query.email, req.query.verificationToken, (err, data) => {
+        if (err) {
+            if (err.kind === 'verified') {
+                res.status(202).json('User already verified')
+            } else {
+                res.status(404).json('Something went wrong')
+            }
+        } else {
+            res.status(200).json(`${data} verified succesfully`)
         }
     })
 }
