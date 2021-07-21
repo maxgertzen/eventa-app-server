@@ -81,20 +81,14 @@ exports.findAll = (req, res) => {
     }
     Event.getAll(uid, (err, data) => {
         if (err) {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving users."
-            })
+            res.status(500).json("Some error occurred while retrieving users.")
         } else { res.send(data) }
     })
 };
 exports.findSome = async (req, res) => {
     Event.search(req.query.search, (err, data) => {
         if (err) {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving users."
-            })
+            res.status(500).json("Some error occurred while retrieving users.")
         } else { res.send(data) }
     })
 };
