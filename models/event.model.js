@@ -179,7 +179,7 @@ Event.getAll = (uid, result) => {
 }
 
 Event.search = (searchTerm, result) => {
-    let queryTerm = "call searchDB('" + searchTerm + "')";
+    let queryTerm = searchTerm === 'week' ? 'SELECT e.event_id, e.name `eventName`, c.name `categoryName`, e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic FROM events e LEFT JOIN category c ON e.category_id = c.category_id  WHERE isPublic = 1 ORDER BY e.dateStart LIMIT 4' : "call searchDB('" + searchTerm + "')";
     sql.query(queryTerm,
         (err, res) => {
             if (err) {
@@ -187,12 +187,12 @@ Event.search = (searchTerm, result) => {
                 result(null, err);
                 return;
             }
-
-            if (res.affectedRows == 0) {
+            console.log(res)
+            if (!res.length) {
                 result({ kind: 'not_found' }, null);
                 return;
             }
-            result(null, res[0])
+            result(null, res)
         })
 }
 
