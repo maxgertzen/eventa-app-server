@@ -1,8 +1,6 @@
-const { signedCookies } = require('cookie-parser');
 var express = require('express');
 var router = express.Router();
 const event = require('../controllers/event.controller');
-// const uploadImage = require('../middlewares/uploadImageMiddleware');
 const uploadImage = require('../middlewares/multerConfig');
 const validateCookie = require('../middlewares/validateCookieMiddleware');
 
