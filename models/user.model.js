@@ -82,7 +82,7 @@ User.findByEmail = (userCreds, result) => {
                 result(null, res[0]);
                 return
             } else {
-                result('WRONG!', null)
+                result('Email or password is incorrect', null)
                 return;
             }
         }
