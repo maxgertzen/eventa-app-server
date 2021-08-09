@@ -4,9 +4,8 @@ const event = require('../controllers/event.controller');
 const uploadImage = require('../middlewares/multerConfig');
 const validateCookie = require('../middlewares/validateCookieMiddleware');
 
-router.get('/', event.findAll)
+router.get('/all', event.findAll)
 router.get('/dashboard', event.getUserEvents)
-router.get('/s', event.findSome)
 router.get('/categories', event.categories)
 
 router.get('/:eventId', event.findOne)
