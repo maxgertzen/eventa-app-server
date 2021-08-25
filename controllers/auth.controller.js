@@ -1,7 +1,7 @@
 const Location = require('../models/location.model');
 const User = require('../models/user.model');
 const Verification = require('../models/verification.model')
-// const sendVerificationEmail = require('../utils/sendGridEmailHelper');
+const sendVerificationEmail = require('../utils/sendGridEmailHelper');
 // Create and Save a new user
 exports.register = (req, res) => {
     if (!req.body) {
@@ -15,10 +15,10 @@ exports.register = (req, res) => {
         if (err) {
             res.status(500).json("Some error occurred while creating the User.");
         } else {
-            // sendVerificationEmail(data.email, data.token, data.user_id, data.firstName, req, res);
+            sendVerificationEmail(data.email, data.token, data.user_id, data.firstName, req, res);
             let userString = data.user_id + '?' + data.firstName;
             res.cookie('user', userString);
-            res.status(200).send(data)
+            res.status(200).json({ message: 'A verification email has been sent to ' + email + '.' });
         }
     })
 };
@@ -55,7 +55,7 @@ exports.check = async (req, res) => {
 
 exports.verification = (req, res) => {
     if (!req.body) {
-
+        res.status(400).json("Cannot be empty")
     }
 
     Verification.verify(req.query.email, req.query.verificationToken, (err, data) => {

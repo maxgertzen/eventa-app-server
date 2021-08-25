@@ -11,23 +11,25 @@ function sendEmail(mailOptions) {
     });
 }
 
-async function sendVerificationEmail(email, token, id, firstName, req, res) {
+async function sendVerificationEmail(email, token, firstName) {
     try {
 
-        let subject = "Account Verification Token";
-        let to = email;
-        let from = process.env.FROM_EMAIL;
-        let link = `http://${process.env.HOST}/verification?token=${token}&email=${to}`;
-        let html = `<p>Hi ${firstName}<p><br><p>Please click on the following <a href="${link}">link</a> to verify your account.</p> 
-                  <br><p>If you did not request this, please ignore this email.</p>`;
+        const msg = {
+            subject: "Account Verification Token",
+            to: email,
+            from: process.env.FROM_EMAIL,
+            link: `http://${process.env.HOST}:${process.env.CLIENT_PORT}/verification?token=${token}&email=${to}`,
+            templateId: process.env.EMAIL_TEMPLATE,
+            dynamic_template_data: {
+                firstName,
+                link
+            }
+        }
 
-        await sendEmail({ to, from, subject, html });
+        await sendEmail(msg);
 
-        let userString = id + '?' + firstName;
-        res.cookie('user', userString);
-        res.status(200).json({ message: 'A verification email has been sent to ' + email + '.' });
     } catch (error) {
-        res.status(500).json({ message: error.message })
+        return new Error(`Something went wrong ! - ${error}`)
     }
 }
 
