@@ -7,6 +7,8 @@ const User = function (user) {
     this.first_name = user.firstName;
     this.last_name = user.lastName;
     this.accept_mail = user.acceptMail || 0;
+    this.birth_date = user.birth_date;
+    this.bio = user.bio
 }
 
 
@@ -82,15 +84,15 @@ User.findByEmail = (userCreds, result) => {
             result(err, null);
             return;
         }
-
+        console.log(userCreds)
         if (res.length) {
-            console.log(`found user: ${res[0]} `);
+            console.log(`found user: ${res[0].firstName} `);
             if (res[0].password === userCreds.password) {
                 console.log(res)
                 result(null, res[0]);
                 return
             } else {
-                result('WRONG!', null)
+                result('Email or password is incorrect', null)
                 return;
             }
         }

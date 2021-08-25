@@ -79,20 +79,26 @@ exports.findAll = (req, res) => {
     if (req.cookies.user) {
         uid = req.cookies.user.split('?')[0]
     }
-    Event.getAll(uid, (err, data) => {
-        if (err) {
-            res.status(500).json("Some error occurred while retrieving users.")
-        } else { res.send(data) }
-    })
+    if (!req.query.search) {
+        Event.getAll(uid, (err, data) => {
+            if (err) {
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving users."
+                })
+            } else { res.send(data) }
+        })
+    } else {
+        Event.search(req.query.search, (err, data) => {
+            if (err) {
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while retrieving users."
+                })
+            } else { res.send(data) }
+        })
+    }
 };
-exports.findSome = async (req, res) => {
-    Event.search(req.query.search, (err, data) => {
-        if (err) {
-            res.status(500).json("Some error occurred while retrieving users.")
-        } else { res.send(data) }
-    })
-};
-
 
 exports.findOne = async (req, res) => {
     Event.findById(req.params.eventId, (err, data) => {

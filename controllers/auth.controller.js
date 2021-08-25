@@ -27,9 +27,9 @@ exports.login = (req, res) => {
     User.findByEmail(req.body, (err, data) => {
         if (err) {
             if (err.kind === "not_found") {
-                res.status(404).json(`Either email or password is wrong.`);
+                res.status(404).json("User not found");
             } else {
-                res.status(500).json("Error retrieving user");
+                res.status(500).json(err);
             }
         } else {
             let userString = data.user_id + '?' + data.firstName;
