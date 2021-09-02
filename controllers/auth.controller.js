@@ -11,14 +11,18 @@ exports.register = (req, res) => {
     const user = new User(req.body)
     user.address = new Location(req.body);
 
-    User.create(user, (err, data) => {
+    User.create(user, async (err, data) => {
         if (err) {
             res.status(500).json("Some error occurred while creating the User.");
         } else {
-            sendVerificationEmail(data.email, data.token, data.user_id, data.firstName, req, res);
-            let userString = data.user_id + '?' + data.firstName;
-            res.cookie('user', userString);
-            res.status(200).json({ message: 'A verification email has been sent to ' + email + '.' });
+            try {
+                await sendVerificationEmail(data.email, data.token, data.user_id, data.firstName);
+                let userString = data.user_id + '?' + data.firstName;
+                res.cookie('user', userString);
+                res.status(200).json({ message: 'A verification email has been sent to ' + email + '.' });
+            } catch (error) {
+                res.status(500).json({ message: error })
+            }
         }
     })
 };
@@ -34,7 +38,7 @@ exports.login = (req, res) => {
         } else {
             let userString = data.user_id + '?' + data.firstName;
             res.cookie('user', userString);
-            res.status(200).send({ msg: 'Logged In.' })
+            res.status(200).json({ message: 'Logged In.' })
         }
     })
 };

@@ -26,7 +26,8 @@ exports.create = (req, res) => {
             res.status(500).json("Some error occurred while creating the User.");
         } else {
             res.status(200).send({
-                message: `${data.name} is added successfully!`
+                message: `${data.name} is added successfully!`,
+                id: data["event_id"]
             })
         }
     })
@@ -58,7 +59,6 @@ exports.update = (req, res) => {
     if (!event.image) {
         delete event.image;
     }
-    console.log(event)
     Event.updateById(
         req.params.eventId,
         event,

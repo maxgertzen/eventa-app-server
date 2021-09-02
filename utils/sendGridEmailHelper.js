@@ -5,7 +5,11 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 function sendEmail(mailOptions) {
     return new Promise((resolve, reject) => {
         sgMail.send(mailOptions, (error, result) => {
-            if (error) return reject(error);
+            if (error) {
+                console.log('This is error')
+                return reject(error)
+            };
+            console.log('not error')
             return resolve(result);
         });
     });
@@ -13,12 +17,12 @@ function sendEmail(mailOptions) {
 
 async function sendVerificationEmail(email, token, firstName) {
     try {
-
+        let link = `http://${process.env.HOST}:${process.env.CLIENT_PORT}/verification?token=${token}&email=${email}`
         const msg = {
-            subject: "Account Verification Token",
+            subject: "Account Verification",
             to: email,
             from: process.env.FROM_EMAIL,
-            link: `http://${process.env.HOST}:${process.env.CLIENT_PORT}/verification?token=${token}&email=${to}`,
+            link,
             templateId: process.env.EMAIL_TEMPLATE,
             dynamic_template_data: {
                 firstName,
@@ -26,7 +30,7 @@ async function sendVerificationEmail(email, token, firstName) {
             }
         }
 
-        await sendEmail(msg);
+        return await sendEmail(msg);
 
     } catch (error) {
         return new Error(`Something went wrong ! - ${error}`)

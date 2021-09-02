@@ -13,7 +13,6 @@ const Event = function (event) {
 }
 
 Event.create = (newEvent, result) => {
-    console.log(newEvent)
     sql.beginTransaction(function (err) {
         if (err) {
             console.log(err)
@@ -41,7 +40,6 @@ Event.create = (newEvent, result) => {
 
             })
         } else {
-            console.log('got here')
             sql.query('INSERT INTO address SET ?', newEvent.newVenue.address, (err, res) => {
                 if (err) {
                     return sql.rollback(function () {
@@ -63,7 +61,6 @@ Event.create = (newEvent, result) => {
 
                     newEvent.venue_id = res.insertId;
                     let { newVenue, ...finalEvent } = newEvent
-                    console.log('FINAL EVENT', finalEvent)
                     sql.query('INSERT INTO events SET ?', finalEvent, (err, res) => {
                         if (err) {
                             return sql.rollback(function () {
@@ -128,7 +125,6 @@ Event.findByUserId = (userId, result) => {
 
 
 Event.getAll = (uid, result) => {
-    console.log(uid)
     if (uid) {
         sql.beginTransaction(function (err) {
             if (err) {
@@ -144,7 +140,6 @@ Event.getAll = (uid, result) => {
                 };
 
                 let savedEvents = res;
-                console.log(savedEvents)
                 sql.query('SELECT e.event_id, e.name `eventName`, c.name `categoryName`, e.description, e.price, e.dateStart, e.dateEnd, e.image, e.isPublic FROM events e LEFT JOIN category c ON e.category_id = c.category_id  WHERE isPublic = 1 AND e.dateStart >= CURDATE() ORDER BY e.dateStart', (err, res) => {
                     if (err) {
                         console.log('error: ', err);
@@ -159,7 +154,6 @@ Event.getAll = (uid, result) => {
                                 result(err, null);
                             });
                         }
-                        console.log({ events: res, saved: savedEvents })
                         result(null, { events: res, saved: savedEvents });
                     });
                 })
@@ -189,7 +183,6 @@ Event.search = (searchTerm, result) => {
                 result(null, err);
                 return;
             }
-            console.log(res)
             if (!res.length) {
                 result({ kind: 'not_found' }, null);
                 return;
@@ -245,7 +238,6 @@ Event.updateById = (eventId, updatedEvent, result) => {
                             result(err, null);
                         });
                     };
-                    console.log('SUCCESS UNTIL HERE')
 
                     updatedEvent.venue_id = res.insertId;
                     let { venueDetails, ...finalEvent } = updatedEvent
